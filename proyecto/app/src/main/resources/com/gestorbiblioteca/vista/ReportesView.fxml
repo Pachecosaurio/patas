@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestorbiblioteca.controlador.ReportesController">
+   <center>
+      <TabPane fx:id="tabReportes" tabClosingPolicy="UNAVAILABLE">
+         <tabs>
+            <Tab text="📊 Estadísticas Generales">
+               <content>
+                  <ScrollPane fitToWidth="true">
+                     <content>
+                        <VBox spacing="20.0">
+                           <children>
+                              <Label text="📈 Estadísticas Generales del Sistema">
+                                 <font>
+                                    <Font name="System Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              <Separator />
+                              <GridPane hgap="30.0" vgap="20.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints />
+                                    <ColumnConstraints />
+                                    <ColumnConstraints />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #e8f4f8; -fx-padding: 15; -fx-background-radius: 8;">
+                                       <children>
+                                          <Label text="📚" textFill="#2980b9">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Total de Libros" textFill="#2980b9">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblTotalLibros" text="0" textFill="#2980b9">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #eaf7ea; -fx-padding: 15; -fx-background-radius: 8;" GridPane.columnIndex="1">
+                                       <children>
+                                          <Label text="✅" textFill="#27ae60">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Libros Disponibles" textFill="#27ae60">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblLibrosDisponibles" text="0" textFill="#27ae60">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #fdf2e9; -fx-padding: 15; -fx-background-radius: 8;" GridPane.columnIndex="2">
+                                       <children>
+                                          <Label text="📖" textFill="#f39c12">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Libros Prestados" textFill="#f39c12">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblLibrosPrestados" text="0" textFill="#f39c12">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #f4ecf7; -fx-padding: 15; -fx-background-radius: 8;" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label text="👥" textFill="#8e44ad">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Total Usuarios" textFill="#8e44ad">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblTotalUsuarios" text="0" textFill="#8e44ad">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #e8f8f5; -fx-padding: 15; -fx-background-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label text="✨" textFill="#16a085">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Usuarios Activos" textFill="#16a085">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblUsuariosActivos" text="0" textFill="#16a085">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #fdeaea; -fx-padding: 15; -fx-background-radius: 8;" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label text="⚠️" textFill="#e74c3c">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Préstamos Vencidos" textFill="#e74c3c">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblPrestamosVencidos" text="0" textFill="#e74c3c">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </GridPane>
+                              <VBox spacing="10.0">
+                                 <children>
+                                    <Label text="Ocupación de Biblioteca:">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <ProgressBar fx:id="pbOcupacion" prefWidth="300.0" progress="0.0" />
+                                          <Label fx:id="lblPorcentajeOcupacion" text="0.0%">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
+            <Tab text="📊 Gráficos">
+               <content>
+                  <ScrollPane fitToWidth="true">
+                     <content>
+                        <VBox spacing="20.0">
+                           <children>
+                              <Label text="📊 Análisis Visual de Datos">
+                                 <font>
+                                    <Font name="System Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              <Separator />
+                              <HBox spacing="20.0">
+                                 <children>
+                                    <PieChart fx:id="pieChartEstadoPrestamos" prefHeight="300.0" prefWidth="400.0" title="Estado de Préstamos" />
+                                    <PieChart fx:id="pieChartCategorias" prefHeight="300.0" prefWidth="400.0" title="Libros por Categoría" />
+                                 </children>
+                              </HBox>
+                              <BarChart fx:id="barChartLibrosPrestados" prefHeight="300.0" title="Libros Más Prestados">
+                                 <xAxis>
+                                    <CategoryAxis side="BOTTOM" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis side="LEFT" />
+                                 </yAxis>
+                              </BarChart>
+                              <BarChart fx:id="barChartUsuariosActivos" prefHeight="300.0" title="Usuarios Más Activos">
+                                 <xAxis>
+                                    <CategoryAxis side="BOTTOM" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis side="LEFT" />
+                                 </yAxis>
+                              </BarChart>
+                           </children>
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
+            <Tab text="⚠️ Préstamos Vencidos">
+               <content>
+                  <VBox spacing="15.0">
+                     <children>
+                        <Label text="⚠️ Préstamos Vencidos - Requieren Atención Inmediata">
+                           <font>
+                              <Font name="System Bold" size="16.0" />
+                           </font>
+                        </Label>
+                        <Separator />
+                        <TableView fx:id="tablaPrestamosVencidos" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn fx:id="colUsuarioVencido" prefWidth="150.0" text="Usuario" />
+                              <TableColumn fx:id="colLibroVencido" prefWidth="200.0" text="Libro" />
+                              <TableColumn fx:id="colFechaVencimiento" prefWidth="120.0" text="Fecha Vencimiento" />
+                              <TableColumn fx:id="colDiasVencido" prefWidth="120.0" text="Días Vencido" />
+                           </columns>
+                        </TableView>
+                     </children>
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                  </VBox>
+               </content>
+            </Tab>
+            <Tab text="📋 Reportes Detallados">
+               <content>
+                  <HBox spacing="15.0">
+                     <children>
+                        <VBox spacing="10.0" minWidth="250.0" maxWidth="250.0">
+                           <children>
+                              <Label text="Tipo de Reporte:">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ComboBox fx:id="cmbTipoReporte" maxWidth="1.7976931348623157E308" />
+                              <Button fx:id="btnGenerarReporte" maxWidth="1.7976931348623157E308" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="📊 Generar Reporte" />
+                              <Separator />
+                              <Label text="Opciones Disponibles:">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <ListView fx:id="listReporteDetallado" prefHeight="200.0" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Resultado del Reporte:">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="txtAreaReporte" editable="false" prefHeight="400.0" style="-fx-font-family: 'Courier New';" wrapText="true" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                  </HBox>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+   </center>
+</BorderPane>

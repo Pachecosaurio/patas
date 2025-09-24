@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestorbiblioteca.controlador.PrestamosController">
+   <top>
+      <VBox spacing="10.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Label text="🔍 Buscar:">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="txtBuscar" prefWidth="250.0" promptText="Buscar por usuario, libro o estado..." />
+                  <Button fx:id="btnBuscar" text="Buscar" />
+                  <Label text="Estado:">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="cmbFiltroEstado" prefWidth="120.0" promptText="Todos" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnCrearPrestamo" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="➕ Nuevo Préstamo" />
+               </children>
+            </HBox>
+            <Separator />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </top>
+   <center>
+      <HBox spacing="10.0">
+         <children>
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="📋 Lista de Préstamos">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <TableView fx:id="tablaPrestamos" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+                        <TableColumn fx:id="colUsuario" prefWidth="150.0" text="Usuario" />
+                        <TableColumn fx:id="colLibro" prefWidth="180.0" text="Libro" />
+                        <TableColumn fx:id="colFechaPrestamo" prefWidth="100.0" text="F. Préstamo" />
+                        <TableColumn fx:id="colFechaDevolucion" prefWidth="100.0" text="F. Devolución" />
+                        <TableColumn fx:id="colEstado" prefWidth="80.0" text="Estado" />
+                        <TableColumn fx:id="colDiasRestantes" prefWidth="100.0" text="Días Rest." />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox spacing="10.0" minWidth="350.0" maxWidth="350.0">
+               <children>
+                  <Label text="📝 Detalles del Préstamo">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox spacing="15.0">
+                           <children>
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="cmbUsuario" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    <Label text="Libro:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="cmbLibro" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <Label text="F. Préstamo:" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <DatePicker fx:id="dpFechaPrestamo" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Label text="F. Devolución:" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <DatePicker fx:id="dpFechaDevolucion" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="cmbEstado" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                 </children>
+                              </GridPane>
+                              <VBox spacing="5.0">
+                                 <children>
+                                    <Label text="Observaciones:">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <TextArea fx:id="txtObservaciones" prefRowCount="3" wrapText="true" />
+                                 </children>
+                              </VBox>
+                              <Separator />
+                              <VBox spacing="10.0">
+                                 <children>
+                                    <Label text="Acciones:">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Button fx:id="btnModificar" disable="true" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="✏️ Modificar" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Button fx:id="btnDevolver" disable="true" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="📚 Devolver" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="5.0">
+                                       <children>
+                                          <Button fx:id="btnRenovar" disable="true" style="-fx-background-color: #f39c12; -fx-text-fill: white;" text="🔄 Renovar" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </center>
+</BorderPane>

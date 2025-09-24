@@ -1,0 +1,60 @@
+/* Estilos CSS adicionales para la interfaz moderna */
+
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
+}
+
+/* Efectos de transición suave */
+.button {
+    -fx-cursor: hand;
+    transition: all 0.3s ease;
+}
+
+.text-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: #667eea;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.3), 5, 0, 0, 0);
+}
+
+.combo-box:focused {
+    -fx-background-color: white;
+    -fx-border-color: #667eea;
+    -fx-border-width: 2px;
+}
+
+/* Estilo para las alertas */
+.dialog-pane {
+    -fx-background-color: white;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 20, 0, 0, 5);
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: transparent;
+}
+
+.dialog-pane .content.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+}
+
+/* Scroll bars personalizadas */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(102, 126, 234, 0.6);
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(102, 126, 234, 0.8);
+}
