@@ -148,6 +148,25 @@
                                           </Label>
                                        </children>
                                     </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #e8f5e8; -fx-padding: 15; -fx-background-radius: 8;" GridPane.rowIndex="2">
+                                       <children>
+                                          <Label text="📋" textFill="#2ecc71">
+                                             <font>
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Préstamos Activos" textFill="#2ecc71">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="lblPrestamosActivos" text="0" textFill="#2ecc71">
+                                             <font>
+                                                <Font name="System Bold" size="20.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </GridPane>
                               <VBox spacing="10.0">

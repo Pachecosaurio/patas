@@ -81,18 +81,23 @@ public class ReportesController {
 
     @FXML
     private void initialize() {
-        inicializarComponentes();
-        configurarEventos();
-        
-        // Inicializar servicio de reportes
-        reporteService = new ReporteService();
-        
-        // Crear datos de ejemplo si no se han proporcionado
-        if (libros == null || usuarios == null || prestamos == null) {
-            crearDatosEjemplo();
+        try {
+            inicializarComponentes();
+            configurarEventos();
+            
+            // Inicializar servicio de reportes
+            reporteService = new ReporteService();
+            
+            // Crear datos de ejemplo si no se han proporcionado
+            if (libros == null || usuarios == null || prestamos == null) {
+                crearDatosEjemplo();
+            }
+            
+            actualizarReportes();
+        } catch (Exception e) {
+            System.err.println("Error al inicializar ReportesController: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        actualizarReportes();
     }
 
     private void inicializarComponentes() {
@@ -221,21 +226,25 @@ public class ReportesController {
     }
 
     private void actualizarEstadisticasGenerales() {
-        ReporteService.EstadisticasGenerales stats = reporteService.getEstadisticasGenerales();
-        
-        lblTotalLibros.setText(String.valueOf(stats.getTotalLibros()));
-        lblLibrosDisponibles.setText(String.valueOf(stats.getLibrosDisponibles()));
-        lblLibrosPrestados.setText(String.valueOf(stats.getLibrosPrestados()));
-        lblTotalUsuarios.setText(String.valueOf(stats.getTotalUsuarios()));
-        lblUsuariosActivos.setText(String.valueOf(stats.getUsuariosActivos()));
-        lblPrestamosActivos.setText(String.valueOf(stats.getPrestamosActivos()));
-        lblPrestamosVencidos.setText(String.valueOf(stats.getPrestamosVencidos()));
-        
-        // Calcular y mostrar porcentaje de ocupación
-        double porcentajeOcupacion = stats.getTotalLibros() > 0 ? 
-            (double) stats.getLibrosPrestados() / stats.getTotalLibros() : 0;
-        pbOcupacion.setProgress(porcentajeOcupacion);
-        lblPorcentajeOcupacion.setText(String.format("%.1f%%", porcentajeOcupacion * 100));
+        try {
+            ReporteService.EstadisticasGenerales stats = reporteService.getEstadisticasGenerales();
+            
+            if (lblTotalLibros != null) lblTotalLibros.setText(String.valueOf(stats.getTotalLibros()));
+            if (lblLibrosDisponibles != null) lblLibrosDisponibles.setText(String.valueOf(stats.getLibrosDisponibles()));
+            if (lblLibrosPrestados != null) lblLibrosPrestados.setText(String.valueOf(stats.getLibrosPrestados()));
+            if (lblTotalUsuarios != null) lblTotalUsuarios.setText(String.valueOf(stats.getTotalUsuarios()));
+            if (lblUsuariosActivos != null) lblUsuariosActivos.setText(String.valueOf(stats.getUsuariosActivos()));
+            if (lblPrestamosActivos != null) lblPrestamosActivos.setText(String.valueOf(stats.getPrestamosActivos()));
+            if (lblPrestamosVencidos != null) lblPrestamosVencidos.setText(String.valueOf(stats.getPrestamosVencidos()));
+            
+            // Calcular y mostrar porcentaje de ocupación
+            double porcentajeOcupacion = stats.getTotalLibros() > 0 ? 
+                (double) stats.getLibrosPrestados() / stats.getTotalLibros() : 0;
+            if (pbOcupacion != null) pbOcupacion.setProgress(porcentajeOcupacion);
+            if (lblPorcentajeOcupacion != null) lblPorcentajeOcupacion.setText(String.format("%.1f%%", porcentajeOcupacion * 100));
+        } catch (Exception e) {
+            System.err.println("Error actualizando estadísticas generales: " + e.getMessage());
+        }
     }
 
     private void actualizarGraficos() {
