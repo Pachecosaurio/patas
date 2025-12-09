@@ -35,3 +35,10 @@ pom.xml.versionsBackup
 
 # Other
 *.tmp
+
+# Base de datos SQLite
+*.db
+*.sqlite
+
+# Dependencias JAR (deben descargarse con los scripts)
+*.jar

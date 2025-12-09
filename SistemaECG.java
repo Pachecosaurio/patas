@@ -62,70 +62,59 @@ class DatoHistorico {
 }
 
 class ModeloECG {
-    private List<Paciente> pacientes;
-    private List<DatoHistorico> datosHistoricos;
+    private DatabaseManager db;
     private Paciente pacienteActual;
+    private int sesionActual = -1;
 
     public ModeloECG() {
-        this.pacientes = new ArrayList<>();
-        this.datosHistoricos = new ArrayList<>();
+        this.db = new DatabaseManager();
     }
 
     public void crearPaciente(String nombre, int edad, double estatura) {
-        Paciente p = new Paciente(nombre, edad, estatura);
-        p.setIdPaciente(pacientes.size() + 1);
-        pacientes.add(p);
+        int id = db.insertarPaciente(nombre, edad, estatura);
+        if (id > 0) {
+            System.out.println("✓ Paciente creado con ID: " + id);
+        }
     }
 
     public Paciente obtenerPaciente(int id) {
-        for (Paciente p : pacientes) {
-            if (p.getIdPaciente() == id) {
-                return p;
-            }
-        }
-        return null;
+        return db.obtenerPaciente(id);
     }
 
     public List<Paciente> obtenerTodosPacientes() {
-        return new ArrayList<>(pacientes);
+        return db.obtenerTodosPacientes();
     }
 
     public void actualizarPaciente(int id, String nombre, int edad, double estatura) {
-        Paciente p = obtenerPaciente(id);
-        if (p != null) {
-            p.setNombre(nombre);
-            p.setEdad(edad);
-            p.setEstatura(estatura);
-        }
+        db.actualizarPaciente(id, nombre, edad, estatura);
     }
 
     public void eliminarPaciente(int id) {
-        for (int i = pacientes.size() - 1; i >= 0; i--) {
-            if (pacientes.get(i).getIdPaciente() == id) {
-                pacientes.remove(i);
-            }
-        }
+        db.eliminarPaciente(id);
     }
 
     public void agregarDatoHistorico(int idPaciente, double valorSenal) {
-        DatoHistorico d = new DatoHistorico(idPaciente, valorSenal);
-        datosHistoricos.add(d);
+        // Solo agregar si hay una sesión activa
+        if (sesionActual > 0) {
+            db.insertarLecturaECG(sesionActual, valorSenal);
+        }
     }
 
     public List<DatoHistorico> obtenerHistorialPaciente(int idPaciente) {
-        List<DatoHistorico> resultado = new ArrayList<>();
-        for (DatoHistorico d : datosHistoricos) {
-            if (d.getIdPaciente() == idPaciente) {
-                resultado.add(d);
-            }
-        }
-        return resultado;
+        return db.obtenerHistorialPaciente(idPaciente);
     }
 
     public int calcularBPM(List<Double> senalECG) {
         int complejos = detectarComplejos(senalECG);
         int bpm = complejos * 6;
-        return Math.min(Math.max(bpm, 40), 200);
+        bpm = Math.min(Math.max(bpm, 40), 200);
+        
+        // Guardar cálculo en BD si hay sesión activa
+        if (sesionActual > 0) {
+            db.insertarCalculoBPM(sesionActual, bpm, complejos);
+        }
+        
+        return bpm;
     }
 
     private int detectarComplejos(List<Double> senal) {
@@ -137,8 +126,41 @@ class ModeloECG {
         return complejos;
     }
 
-    public void setPacienteActual(Paciente p) { this.pacienteActual = p; }
+    public void iniciarSesion(int idPaciente, String notas) {
+        sesionActual = db.crearSesionMonitoreo(idPaciente, notas);
+        System.out.println("✓ Sesión iniciada: " + sesionActual);
+    }
+
+    public void finalizarSesion() {
+        if (sesionActual > 0) {
+            db.finalizarSesion(sesionActual);
+            System.out.println("✓ Sesión finalizada: " + sesionActual);
+            sesionActual = -1;
+        }
+    }
+
+    public void registrarComandoMotor(String comando) {
+        if (sesionActual > 0) {
+            db.registrarComandoMotor(sesionActual, comando);
+        }
+    }
+
+    public void setPacienteActual(Paciente p) { 
+        this.pacienteActual = p;
+        // Iniciar nueva sesión cuando se selecciona un paciente
+        if (p != null && sesionActual == -1) {
+            iniciarSesion(p.getIdPaciente(), "Sesión de monitoreo");
+        }
+    }
+    
     public Paciente getPacienteActual() { return pacienteActual; }
+    
+    public DatabaseManager getDatabase() { return db; }
+    
+    public void cerrarConexion() {
+        finalizarSesion();
+        db.cerrarConexion();
+    }
 }
 
 // ============================================
@@ -284,7 +306,7 @@ class ControladorECG {
                 @Override
                 public void onConectado() {
                     vista.mostrarMensaje("Conectado a MQTT Broker: " + brokerURL);
-                    vista.actualizarEstado("CONNECTED");
+                    vista.actualizarEstado("CONECTADO");
                 }
                 
                 @Override
@@ -294,7 +316,7 @@ class ControladorECG {
                 
                 @Override
                 public void onDesconectado() {
-                    vista.actualizarEstado("DISCONNECTED");
+                    vista.actualizarEstado("DESCONECTADO");
                     conectado = false;
                 }
                 
@@ -353,7 +375,7 @@ class ControladorECG {
                 }
             }
             conectado = false;
-            vista.actualizarEstado("DISCONNECTED");
+            vista.actualizarEstado("DESCONECTADO");
         });
         hiloLectura.setDaemon(true);
         hiloLectura.start();
@@ -393,6 +415,9 @@ class ControladorECG {
             return;
         }
         
+        // Registrar comando en la base de datos
+        modelo.registrarComandoMotor(comando);
+        
         // Publicar comando al motor
         String topico = "esp8266/motor";
         try {
@@ -430,7 +455,7 @@ class VistaECG extends JFrame {
     private static final Color COLOR_GRID = new Color(40, 45, 55);
 
     public VistaECG() {
-        setTitle("ECG Monitor - Osciloscopio Digital");
+        setTitle("Monitor ECG - Osciloscopio Digital");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1600, 950);
         setLocationRelativeTo(null);
@@ -457,7 +482,7 @@ class VistaECG extends JFrame {
         panel.setBorder(BorderFactory.createLineBorder(new Color(60, 70, 85), 2));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel titulo = new JLabel("█ ECG DIGITAL OSCILLOSCOPE");
+        JLabel titulo = new JLabel("█ OSCILOSCOPIO DIGITAL ECG");
         titulo.setFont(new Font("Courier New", Font.BOLD, 18));
         titulo.setForeground(COLOR_LINEA);
 
@@ -469,7 +494,7 @@ class VistaECG extends JFrame {
         labelBPM.setForeground(COLOR_LINEA);
         panelInfo.add(labelBPM);
 
-        labelEstado = new JLabel("⚡ Estado: DISCONNECTED");
+        labelEstado = new JLabel("⚡ Estado: DESCONECTADO");
         labelEstado.setFont(new Font("Courier New", Font.PLAIN, 14));
         labelEstado.setForeground(new Color(255, 100, 100));
         panelInfo.add(labelEstado);
@@ -543,11 +568,11 @@ class VistaECG extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setPreferredSize(new Dimension(150, 0));
 
-        String[] medidas = {"SENSITIVITY\n1.0 mV/div", 
-                           "TIMEBASE\n10 ms/div", 
-                           "COUPLING\nDC", 
-                           "MODE\nAuto", 
-                           "TRIGGER\nRising"};
+        String[] medidas = {"SENSIBILIDAD\n1.0 mV/div", 
+                           "BASE TIEMPO\n10 ms/div", 
+                           "ACOPLAMIENTO\nDC", 
+                           "MODO\nAuto", 
+                           "DISPARO\nSubida"};
         
         for (String medida : medidas) {
             JLabel lbl = new JLabel("<html>" + medida.replace("\n", "<br>") + "</html>");
@@ -570,7 +595,7 @@ class VistaECG extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         panelBotones.setBackground(COLOR_PANEL);
 
-        JButton btnConectar = crearBoton("▶ RUN");
+        JButton btnConectar = crearBoton("▶ INICIAR");
         btnConectar.addActionListener(e -> {
             String brokerURL = JOptionPane.showInputDialog(this, 
                 "URL del broker MQTT (ej: localhost:1883):", "localhost:1883");
@@ -579,25 +604,25 @@ class VistaECG extends JFrame {
                     "Topic MQTT (ej: ecg/datos):", "ecg/datos");
                 if (topico != null && !topico.isEmpty()) {
                     controlador.conectarMQTT(brokerURL, topico);
-                    labelEstado.setText("⚡ Estado: CONNECTED");
+                    labelEstado.setText("⚡ Estado: CONECTADO");
                     labelEstado.setForeground(new Color(0, 200, 100));
                 }
             }
         });
         panelBotones.add(btnConectar);
 
-        JButton btnDetener = crearBoton("⏹ STOP");
+        JButton btnDetener = crearBoton("⏹ DETENER");
         btnDetener.addActionListener(e -> {
             if (controlador != null) {
                 controlador.desconectar();
                 labelBPM.setText("❤ BPM: --");
-                labelEstado.setText("⚡ Estado: DISCONNECTED");
+                labelEstado.setText("⚡ Estado: DESCONECTADO");
                 labelEstado.setForeground(new Color(255, 100, 100));
             }
         });
         panelBotones.add(btnDetener);
 
-        JButton btnBorrar = crearBoton("🔄 RESET");
+        JButton btnBorrar = crearBoton("🔄 REINICIAR");
         btnBorrar.addActionListener(e -> {
             datosGrafico = new ArrayList<>();
             panelGrafico.repaint();
@@ -610,7 +635,7 @@ class VistaECG extends JFrame {
         });
         panelBotones.add(btnPacientes);
 
-        JButton btnMotorOn = crearBoton("🔋 MOTOR ON");
+        JButton btnMotorOn = crearBoton("🔋 MOTOR ENCENDER");
         btnMotorOn.addActionListener(e -> {
             if (controlador != null) {
                 controlador.controlarMotor("on");
@@ -618,7 +643,7 @@ class VistaECG extends JFrame {
         });
         panelBotones.add(btnMotorOn);
 
-        JButton btnMotorOff = crearBoton("🛑 MOTOR OFF");
+        JButton btnMotorOff = crearBoton("🛑 MOTOR APAGAR");
         btnMotorOff.addActionListener(e -> {
             if (controlador != null) {
                 controlador.controlarMotor("off");
@@ -641,7 +666,7 @@ class VistaECG extends JFrame {
         panel.setBackground(COLOR_FONDO);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel panelForm = new JPanel(new GridLayout(2, 3, 10, 10));
+        JPanel panelForm = new JPanel(new GridLayout(3, 2, 10, 10));
         panelForm.setBackground(COLOR_PANEL);
         panelForm.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(60, 70, 85), 1),
@@ -651,11 +676,22 @@ class VistaECG extends JFrame {
         JTextField txtEdad = crearTextField();
         JTextField txtEstatura = crearTextField();
 
-        panelForm.add(new JLabel("Nombre:"));
+        JLabel lblNombre = new JLabel("Nombre:");
+        lblNombre.setForeground(COLOR_TEXTO);
+        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panelForm.add(lblNombre);
         panelForm.add(txtNombre);
-        panelForm.add(new JLabel("Edad:"));
+        
+        JLabel lblEdad = new JLabel("Edad:");
+        lblEdad.setForeground(COLOR_TEXTO);
+        lblEdad.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panelForm.add(lblEdad);
         panelForm.add(txtEdad);
-        panelForm.add(new JLabel("Estatura:"));
+        
+        JLabel lblEstatura = new JLabel("Altura (cm):");
+        lblEstatura.setForeground(COLOR_TEXTO);
+        lblEstatura.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panelForm.add(lblEstatura);
         panelForm.add(txtEstatura);
 
         JButton btnAgregar = crearBoton("Agregar");
@@ -665,26 +701,82 @@ class VistaECG extends JFrame {
                     JOptionPane.showMessageDialog(ventana, "Error: Controlador no inicializado", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                String nombre = txtNombre.getText().trim();
+                // Obtener y limpiar los valores de entrada
+                String nombre = txtNombre.getText().trim().replaceAll("\\s+", " ");
                 String edadStr = txtEdad.getText().trim();
                 String estaturaStr = txtEstatura.getText().trim();
                 
-                if (nombre.isEmpty() || edadStr.isEmpty() || estaturaStr.isEmpty()) {
-                    JOptionPane.showMessageDialog(ventana, "Error: Completa todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+                // Validar campos vacíos
+                if (nombre.isEmpty()) {
+                    JOptionPane.showMessageDialog(ventana, "Por favor ingresa el nombre del paciente", "Nombre requerido", JOptionPane.WARNING_MESSAGE);
+                    txtNombre.requestFocus();
                     return;
                 }
                 
-                controlador.crearPaciente(nombre,
-                        Integer.parseInt(edadStr),
-                        Double.parseDouble(estaturaStr));
+                if (edadStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(ventana, "Por favor ingresa la edad", "Edad requerida", JOptionPane.WARNING_MESSAGE);
+                    txtEdad.requestFocus();
+                    return;
+                }
+                
+                if (estaturaStr.isEmpty()) {
+                    JOptionPane.showMessageDialog(ventana, "Por favor ingresa la estatura", "Estatura requerida", JOptionPane.WARNING_MESSAGE);
+                    txtEstatura.requestFocus();
+                    return;
+                }
+                
+                // Validar y convertir edad
+                int edad;
+                try {
+                    edad = Integer.parseInt(edadStr);
+                    if (edad <= 0 || edad >= 150) {
+                        JOptionPane.showMessageDialog(ventana, 
+                            "La edad debe estar entre 1 y 150 años\nValor ingresado: " + edad, 
+                            "Edad fuera de rango", 
+                            JOptionPane.ERROR_MESSAGE);
+                        txtEdad.requestFocus();
+                        return;
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(ventana, 
+                        "La edad debe ser un número entero\nTexto ingresado: '" + edadStr + "'\nEjemplo válido: 21", 
+                        "Edad inválida", 
+                        JOptionPane.ERROR_MESSAGE);
+                    txtEdad.requestFocus();
+                    txtEdad.selectAll();
+                    return;
+                }
+                
+                // Validar y convertir estatura
+                double estatura;
+                try {
+                    estatura = Double.parseDouble(estaturaStr);
+                    if (estatura <= 0 || estatura >= 300) {
+                        JOptionPane.showMessageDialog(ventana, 
+                            "La estatura debe estar entre 1 y 300 cm\nValor ingresado: " + estatura, 
+                            "Estatura fuera de rango", 
+                            JOptionPane.ERROR_MESSAGE);
+                        txtEstatura.requestFocus();
+                        return;
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(ventana, 
+                        "La estatura debe ser un número válido\nTexto ingresado: '" + estaturaStr + "'\nEjemplo válido: 171", 
+                        "Estatura inválida", 
+                        JOptionPane.ERROR_MESSAGE);
+                    txtEstatura.requestFocus();
+                    txtEstatura.selectAll();
+                    return;
+                }
+                
+                controlador.crearPaciente(nombre, edad, estatura);
                 txtNombre.setText("");
                 txtEdad.setText("");
                 txtEstatura.setText("");
                 JOptionPane.showMessageDialog(ventana, "Paciente agregado exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(ventana, "Error: Edad y Estatura deben ser números", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(ventana, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         });
 
@@ -845,6 +937,12 @@ public class SistemaECG {
             ControladorECG controlador = new ControladorECG(modelo, vista);
             vista.setControlador(controlador);
             vista.setVisible(true);
+            
+            // Agregar hook para cerrar la base de datos al salir
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("\n✓ Cerrando sistema ECG...");
+                modelo.cerrarConexion();
+            }));
         });
     }
 }
